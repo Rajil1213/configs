@@ -1,7 +1,7 @@
-" Fish doesn't play all that well with others
-set shell=/bin/bash
-let mapleader = "\<Space>"
+set runtimepath^=~/.vim runtimepath+=~/.vim/after
+let &packpath=&runtimepath
 
+set shell=/bin/bash
 " =============================================================================
 " # PLUGINS
 " =============================================================================
@@ -13,6 +13,7 @@ call plug#begin()
 
 " Load plugins
 " VIM enhancements
+Plug 'chriskempson/base16-vim'
 Plug 'ciaranm/securemodelines'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'justinmk/vim-sneak'
@@ -43,11 +44,20 @@ Plug 'hrsh7th/vim-vsnip'
 Plug 'cespare/vim-toml', {'branch': 'main'}
 Plug 'stephpy/vim-yaml'
 Plug 'rust-lang/rust.vim'
+Plug 'neovim/nvim-lspconfig'
+Plug 'simrat39/rust-tools.nvim'
 Plug 'rhysd/vim-clang-format'
-"Plug 'fatih/vim-go'
+Plug 'fatih/vim-go'
 Plug 'dag/vim-fish'
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
+
+" LSP  Managers
+Plug 'williamboman/mason.nvim'    
+Plug 'williamboman/mason-lspconfig.nvim'
+
+" Autocompletion
+" Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call plug#end()
 
@@ -90,10 +100,16 @@ END
 " call Base16hi("CocHintSign", g:base16_gui03, "", g:base16_cterm03, "", "", "")
 
 " LSP configuration
+" First setup mason
 lua << END
-local cmp = require'cmp'
+require("mason").setup()
+END
 
-local lspconfig = require'lspconfig'
+" Then setup LSP
+lua << END
+local cmp = require('cmp')
+
+local lspconfig = require('lspconfig')
 cmp.setup({
   snippet = {
     -- REQUIRED by nvim-cmp. get rid of it once we can
@@ -102,12 +118,13 @@ cmp.setup({
     end,
   },
   mapping = cmp.mapping.preset.insert({
-    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-e>'] = cmp.mapping.abort(),
-    ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-  }),
+  ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+  ['<C-f>'] = cmp.mapping.scroll_docs(4),
+  ['<Tab>'] = cmp.mapping.select_next_item(),
+  ['<C-Space>'] = cmp.mapping.complete(),
+  ['<C-e>'] = cmp.mapping.abort(),
+  ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+ }),
   sources = cmp.config.sources({
     -- TODO: currently snippets from lsp end up getting prioritized -- stop that!
     { name = 'nvim_lsp' },
@@ -135,7 +152,7 @@ local on_attach = function(client, bufnr)
   buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
 
   -- Mappings.
-  local opts = { noremap=true, silent=true }
+  local opts = { noremap=true, silent=false}
 
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
@@ -155,7 +172,7 @@ local on_attach = function(client, bufnr)
 
   -- None of this semantics tokens business.
   -- https://www.reddit.com/r/neovim/comments/143efmd/is_it_possible_to_disable_treesitter_completely/
-  client.server_capabilities.semanticTokensProvider = nil
+  -- client.server_capabilities.semanticTokensProvider = nil
 
   -- Get signatures (and _only_ signatures) when in argument lists.
   require "lsp_signature".on_attach({
@@ -179,7 +196,7 @@ lspconfig.rust_analyzer.setup {
       },
       completion = {
 	postfix = {
-	  enable = false,
+	  enable = true,
 	},
       },
     },
@@ -197,7 +214,7 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
 END
 
 " Enable type inlay hints
-autocmd CursorHold,CursorHoldI *.rs :lua require'lsp_extensions'.inlay_hints{ only_current_line = true }
+" autocmd CursorHold,CursorHoldI !silent*.rs :lua require'lsp_extensions'.inlay_hints{ only_current_line = true }
 
 " Plugin settings
 let g:secure_modelines_allowed_items = [
@@ -271,7 +288,8 @@ let g:rust_clip_command = 'xclip -selection clipboard'
 " menuone: popup even when there's only one match
 " noinsert: Do not insert text until a selection is made
 " noselect: Do not select, force user to select one from the menu
-set completeopt=menuone,noinsert,noselect
+" set completeopt=menuone,noinsert,noselect
+set completeopt=menuone,noinsert
 " Better display for messages
 set cmdheight=2
 " You will have bad experience for diagnostic messages when it's default 4000.
@@ -301,6 +319,11 @@ let g:vim_markdown_auto_insert_bullets = 0
 let g:vim_markdown_frontmatter = 1
 " Always draw sign column. Prevent buffer moving when adding/deleting sign.
 set signcolumn=yes
+" Set tabsize to 4 and and expand tab to spaces
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
 
 " Settings needed for .lvimrc
 set exrc
@@ -318,12 +341,6 @@ set undofile
 set wildmenu
 set wildmode=list:longest
 set wildignore=.hg,.svn,*~,*.png,*.jpg,*.gif,*.settings,Thumbs.db,*.min.js,*.swp,publish/*,intermediate/*,*.o,*.hi,Zend,vendor
-
-" Use wide tabs
-set shiftwidth=8
-set softtabstop=8
-set tabstop=8
-set noexpandtab
 
 " Wrapping options
 set formatoptions=tc " wrap text and comments using textwidth
@@ -350,12 +367,16 @@ nnoremap ? ?\v
 nnoremap / /\v
 cnoremap %s/ %sm/
 
+" Prevent going into 
+" Unbind some useless/annoying default key bindings.
+nmap Q <Nop> " 'Q' in normal mode enters Ex mode. You almost never want this.
+
 " =============================================================================
 " # GUI settings
 " =============================================================================
 set guioptions-=T " Remove toolbar
 set vb t_vb= " No more beeps
-set backspace=2 " Backspace over newlines
+set backspace=indent,eol,start " Backspace over anything
 set nofoldenable
 set ttyfast
 " https://github.com/vim/vim/issues/1735#issuecomment-383353563
@@ -368,7 +389,7 @@ set diffopt+=iwhite " No whitespace in vimdiff
 " Make diffing better: https://vimways.org/2018/the-power-of-diff/
 set diffopt+=algorithm:patience
 set diffopt+=indent-heuristic
-set colorcolumn=80 " and give me a colored column
+set colorcolumn=120 " and give me a colored column
 set showcmd " Show (partial) command in status line.
 set mouse=a " Enable mouse usage (all modes) in terminals
 set shortmess+=c " don't give |ins-completion-menu| messages.
@@ -380,83 +401,20 @@ set listchars=nbsp:¬,extends:»,precedes:«,trail:•
 
 " =============================================================================
 " # Keyboard shortcuts
+" minimal shortucts for productivity since more shortcuts makes working with
+" vim at work difficult
 " =============================================================================
-" ; as :
-nnoremap ; :
-
-" Ctrl+j and Ctrl+k as Esc
-" Ctrl-j is a little awkward unfortunately:
-" https://github.com/neovim/neovim/issues/5916
-" So we also map Ctrl+k
-nnoremap <C-j> <Esc>
-inoremap <C-j> <Esc>
-vnoremap <C-j> <Esc>
-snoremap <C-j> <Esc>
-xnoremap <C-j> <Esc>
-cnoremap <C-j> <C-c>
-onoremap <C-j> <Esc>
-lnoremap <C-j> <Esc>
-tnoremap <C-j> <Esc>
-
-nnoremap <C-k> <Esc>
-inoremap <C-k> <Esc>
-vnoremap <C-k> <Esc>
-snoremap <C-k> <Esc>
-xnoremap <C-k> <Esc>
-cnoremap <C-k> <C-c>
-onoremap <C-k> <Esc>
-lnoremap <C-k> <Esc>
-tnoremap <C-k> <Esc>
-
-" Ctrl+h to stop searching
-vnoremap <C-h> :nohlsearch<cr>
-nnoremap <C-h> :nohlsearch<cr>
-
-" Suspend with Ctrl+f
-inoremap <C-f> :sus<cr>
-vnoremap <C-f> :sus<cr>
-nnoremap <C-f> :sus<cr>
-
-" Jump to start and end of line using the home row keys
-map H ^
-map L $
-
-" Neat X clipboard integration
-" ,p will paste clipboard into buffer
-" ,c will copy entire buffer into clipboard
-noremap <leader>p :read !wl-paste<cr>
-noremap <leader>c :w !wl-copy<cr><cr>
-
-" <leader>s for Rg search
-noremap <leader>s :Rg
-let g:fzf_layout = { 'down': '~20%' }
-command! -bang -nargs=* Rg
-  \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
-  \   <bang>0 ? fzf#vim#with_preview('up:60%')
-  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-  \   <bang>0)
-
-function! s:list_cmd()
-  let base = fnamemodify(expand('%'), ':h:.:S')
-  return base == '.' ? 'fd --type file --follow' : printf('fd --type file --follow | proximity-sort %s', shellescape(expand('%')))
-endfunction
-
-command! -bang -nargs=? -complete=dir Files
-  \ call fzf#vim#files(<q-args>, {'source': s:list_cmd(),
-  \                               'options': '--tiebreak=index'}, <bang>0)
-
-
-" Open new file adjacent to current file
-nnoremap <leader>o :e <C-R>=expand("%:p:h") . "/" <CR>
+"
+" Use system clipboard by default
+set clipboard=unnamed
 
 " No arrow keys --- force yourself to use the home row
-nnoremap <up> <nop>
-nnoremap <down> <nop>
-inoremap <up> <nop>
-inoremap <down> <nop>
-inoremap <left> <nop>
-inoremap <right> <nop>
+nnoremap <up>    :echoe "Use k"<CR>
+nnoremap <down>  :echoe "Use j"<CR>
+inoremap <up>    <ESC>:echoe "Use k"<CR>
+inoremap <down>  <ESC>:echoe "Use j"<CR>
+inoremap <left>  <ESC>:echoe "Use h"<CR>
+inoremap <right> <ESC>:echoe "Use l"<CR>
 
 " Left and right can switch buffers
 nnoremap <left> :bp<CR>
@@ -475,13 +433,8 @@ nnoremap <leader>, :set invlist<cr>
 " <leader>q shows stats
 nnoremap <leader>q g<c-g>
 
-" Keymap for replacing up to next _ or -
-noremap <leader>m ct_
-
-" I can type :help on my own, thanks.
-map <F1> <Esc>
-imap <F1> <Esc>
-
+" <Esc> to exit terminal mode
+tnoremap <Esc> <C-\><C-n>
 
 " =============================================================================
 " # Autocommands
@@ -500,8 +453,7 @@ if has("autocmd")
   au BufReadPost * if expand('%:p') !~# '\m/\.git/' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 endif
 
-" Follow Rust code style rules
-au Filetype rust source ~/.config/nvim/scripts/spacetab.vim
+" Follow Rust style rules
 au Filetype rust set colorcolumn=100
 
 " Help filetype detection
@@ -511,9 +463,18 @@ autocmd BufRead *.lds set filetype=ld
 autocmd BufRead *.tex set filetype=tex
 autocmd BufRead *.trm set filetype=c
 autocmd BufRead *.xlsx.axlsx set filetype=ruby
+autocmd BufRead *.js set filetype=js
+autocmd BufRead *.ts set filetype=ts
+autocmd BufRead *.jsx set filetype=jsx
+autocmd BufRead *.tsx set filetype=tsx
+autocmd BufRead *.css set filetype=css
+autocmd BufRead *.html set filetype=html
 
 " Script plugins
 autocmd Filetype html,xml,xsl,php source ~/.config/nvim/scripts/closetag.vim
+
+" Follow JS/TS code style rules
+autocmd Filetype js,ts,html,css,jsx,tsx source ~/.config/nvim/scripts/spacetab.vim
 
 " =============================================================================
 " # Footer
