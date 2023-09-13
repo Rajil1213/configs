@@ -1,7 +1,6 @@
 set runtimepath^=~/.vim runtimepath+=~/.vim/after
 let &packpath=&runtimepath
 
-set shell=/bin/bash
 " =============================================================================
 " # PLUGINS
 " =============================================================================
@@ -56,10 +55,17 @@ Plug 'plasticboy/vim-markdown'
 Plug 'williamboman/mason.nvim'    
 Plug 'williamboman/mason-lspconfig.nvim'
 
-" Autocompletion
-" Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Terminal Emulator Helper
+Plug 'akinsho/toggleterm.nvim', {'tag' : 'v2.7.1'}
 
 call plug#end()
+
+" Enable Toggle terminal
+lua <<EOF
+require("toggleterm").setup{
+    open_mapping = [[<C-\>]],
+}
+EOF
 
 if has('nvim')
     set guicursor=n-v-c:block-Cursor/lCursor-blinkon0,i-ci:ver25-Cursor/lCursor,r-cr:hor20-Cursor/lCursor
