@@ -7,10 +7,10 @@ set PATH /usr/local/opt/coreutils/libexec/gnubin $PATH
 set -x PNPM_HOME $HOME/Library/pnpm
 
 set -x GOPATH $HOME/go
-set PATH GOPATH/bin $PATH
+set PATH $GOPATH/bin $PATH
 
 set -x PYENV_ROOT $HOME/.pyenv
-set PATH PYENV_ROOT/bin $PATH
+set PATH $PYENV_ROOT/bin $PATH
 
 alias vi="nvim"
 alias vim="nvim"
