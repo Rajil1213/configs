@@ -24,4 +24,4 @@ alias git-graph="git log --graph --abbrev-commit --decorate --format=format:'%C(
 alias ls='exa --icons -F -H --group-directories-first --git -1'
 
 /usr/local/bin/starship init fish | source
-
+kubectl completion fish | source
