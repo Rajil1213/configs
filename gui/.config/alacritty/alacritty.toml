@@ -21,11 +21,11 @@ color = "#d65d0e"
 index = 17
 
 [[colors.indexed_colors]]
-color = "#3c3836"
+color = "#7b3836"
 index = 18
 
 [[colors.indexed_colors]]
-color = "#504945"
+color = "#544945"
 index = 19
 
 [[colors.indexed_colors]]
@@ -143,7 +143,7 @@ text = "#161821"
 background = "#c6c8d1"
 
 [font]
-size = 15
+size = 12
 
 [font.offset]
 x = 0
