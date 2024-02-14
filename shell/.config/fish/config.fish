@@ -12,6 +12,8 @@ set PATH $GOPATH/bin $PATH
 set -x PYENV_ROOT $HOME/.pyenv
 set PATH $PYENV_ROOT/bin $PATH
 
+set -U EDITOR "vi"
+
 alias vi="nvim"
 alias vim="nvim"
 alias lg="lazygit"
