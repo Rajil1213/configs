@@ -59,5 +59,6 @@
   },
   "terminal": {
     "font_size": 14
-  }
+  },
+  "relative_line_numbers": true
 }
