@@ -7,6 +7,7 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "theme": "Catppuccin Macchiato",
   "base_keymap": "VSCode",
   "vim_mode": true,
   "ui_font_size": 14,
@@ -15,10 +16,7 @@
   "format_on_save": "on",
   "preferred_line_length": 100,
   "ui_font_family": "CommitMono Nerd Font",
-  "buffer_font_family": "CommitMono Nerd Font",
-  "buffer_font_features": {
-    "liga": true
-  },
+  "buffer_font_family": "CommitMono",
   "buffer_line_height": "comfortable",
   "confirm_quit": true,
   "lsp": {
@@ -55,10 +53,14 @@
     }
   },
   "inlay_hints": {
-    "enabled": true
+    "enabled": true,
+    "show_type_hints": true,
+    "show_other_hints": true,
+    "show_parameter_hints": true
   },
   "terminal": {
-    "font_size": 14
+    "font_size": 13,
+    "font_family": "CommitMono Nerd Font"
   },
   "relative_line_numbers": true
 }
